@@ -57,10 +57,44 @@ namespace Knn
                 }
             }
 
+            
+            WriteSysOutput (sysOutput,TestingDoc, Classes,k_val);
             WriteConfusionMatrix(Classes, ConfusionDict, "test", TestingDoc.Count);
             stopwatch.Stop();
             Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
             Console.ReadLine();
+        }
+
+
+        public static void WriteSysOutput (string sysOutput, List<TestDoc> TestingDoc, List<String> Classes, int k_val)
+        {
+            using (StreamWriter Sw1 = new StreamWriter(sysOutput))
+            {
+                int totalDoc = 0;
+                foreach (var doc in TestingDoc)
+                {
+                    Sw1.Write("array:" + totalDoc + "\t");
+                    Dictionary<String, bool> ClassWritten = new Dictionary<string, bool>();
+                    foreach (var item in Classes)
+                    {
+                        ClassWritten.Add(item, false);
+                    }
+                    totalDoc++;
+                    foreach (var item in doc.ClassCount)
+                    {
+                        Sw1.Write(item.Key + "\t" + (item.Value / ( double )k_val) + "\t");
+                        if (ClassWritten.ContainsKey(item.Key))
+                            ClassWritten[item.Key] = true;
+                    }
+                    foreach (var pair in ClassWritten)
+                    {
+                        if (!pair.Value)
+                            Sw1.Write(pair.Key + "\t" + "0" + "\t");
+                    }
+                    Sw1.WriteLine();
+                }
+            }
+
         }
         public static void WriteConfusionMatrix (List<String> ClassBreakDown, Dictionary<String, int> ConfusionDict, string testOrTrain,int totalInstances)
         {
@@ -145,10 +179,7 @@ namespace Knn
                 score = 0;
                 var keyList = item.Keys.Intersect(test.wordCounts.Keys).Distinct();
                 foreach (var word in keyList)
-                {
-                    //this is Eculedean;
                     score += (item.wordCounts[word]*test.wordCounts[word]);
-                }
                 //(a-b)^2 = a^2 +b^2 -2 *a * b
                 score = test.SumSquared+item.SumSquared - (2 * score);
                 ScoreList.Add(new Score(item.classLabel, score));
