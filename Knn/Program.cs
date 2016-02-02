@@ -41,6 +41,7 @@ namespace Knn
                         index = words[i].IndexOf(":");
                         key = words[i].Substring(0, index);
                         value = Convert.ToInt32(words[i].Substring(index + 1));
+                        test.SumSquared += System.Math.Pow(value, 2);
                         if (test.wordCounts.ContainsKey(key))
                             test.wordCounts[key] += value;
                         else
@@ -100,19 +101,12 @@ namespace Knn
             List<Score> ScoreList = new List<Score>();
             double score;
             double V1=0, V2=0;
-            foreach (var item in test.wordCounts)
-            {
-                V2 += System.Math.Pow(item.Value, 2);
-            }
+            V2 = test.SumSquared;
             V2 = System.Math.Sqrt(V2);
 
             foreach (var item in TrainDocs)
             {
-
-                foreach (var pair in item.wordCounts)
-                {
-                    V1 += System.Math.Pow(pair.Value, 2);
-                }
+                V1 = item.SumSquared;
                 V1 = System.Math.Sqrt(V1);
                 score = 0;
 
@@ -146,26 +140,17 @@ namespace Knn
         {
             List<Score> ScoreList = new List<Score>();
             double score;
-            int val1, val2;
             foreach (var item in TrainDocs)
             {
                 score = 0;
-
-                var keyList = item.Keys.Concat(test.wordCounts.Keys).Distinct();
+                var keyList = item.Keys.Intersect(test.wordCounts.Keys).Distinct();
                 foreach (var word in keyList)
                 {
-                    if (item.wordCounts.ContainsKey(word))
-                        val1 = item.wordCounts[word];
-                    else
-                        val1 = 0;
-                    if (test.wordCounts.ContainsKey(word))
-                        val2 = test.wordCounts[word];
-                    else
-                        val2 = 0;
                     //this is Eculedean;
-                    score += System.Math.Pow((val1 - val2), 2);
+                    score += (item.wordCounts[word]*test.wordCounts[word]);
                 }
-                score = System.Math.Sqrt(score);
+                //(a-b)^2 = a^2 +b^2 -2 *a * b
+                score = test.SumSquared+item.SumSquared - (2 * score);
                 ScoreList.Add(new Score(item.classLabel, score));
             }
             ScoreList = ScoreList.OrderBy(s => s.ScoreValue).ToList();
@@ -206,6 +191,7 @@ namespace Knn
                         index = words[i].IndexOf(":");
                         key = words[i].Substring(0, index);
                         value = Convert.ToInt32(words[i].Substring(index + 1));
+                        train.SumSquared += System.Math.Pow(value, 2);
                         if (train.wordCounts.ContainsKey(key))
                             train.wordCounts[key] += value;
                         else

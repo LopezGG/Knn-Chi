@@ -12,12 +12,13 @@ namespace Knn
         public string PredClass;
         public Dictionary<String, int> wordCounts;
         public Dictionary <string, int> ClassCount;
-
+        public double SumSquared;
         public TestDoc (string actClass)
         {
             wordCounts = new Dictionary<string, int>();
             ClassCount = new Dictionary<string, int>();
             ActualClass = actClass;
+            SumSquared = 0;
         }
     }
 }
