@@ -62,7 +62,7 @@ namespace Knn
             WriteConfusionMatrix(Classes, ConfusionDict, "test", TestingDoc.Count);
             stopwatch.Stop();
             Console.WriteLine("Time elapsed: {0:hh\\:mm\\:ss}", stopwatch.Elapsed);
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
 

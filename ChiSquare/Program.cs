@@ -32,13 +32,13 @@ namespace ChiSquare
                         ClassDocCount[classLabel]++;
                     else
                         ClassDocCount.Add(classLabel, 1);
-
                     for (int i = 1; i < words.Length; i++)
                     {
                         index = words[i].IndexOf(":");
                         if (index < 0)
                             continue;
                         key = words[i].Substring(0, index);
+
                         //wordCount
                         if (ClassWC.ContainsKey(classLabel) && ClassWC[classLabel].ContainsKey(key))
                             (ClassWC[classLabel])[key]++;
@@ -62,7 +62,7 @@ namespace ChiSquare
             }
             List<String> UniqueClass = ClassDocCount.Keys.Distinct().ToList();
             double score;
-            double expectedValue,tempValue;
+            double expectedValue1,tempValue,expectedValue2;
             int observedValue1, observedValue2,totalDocsInClass;
             Dictionary<string, double> FeatureScore = new Dictionary<string, double>();
             foreach (var featureitem in Vocab)
@@ -77,7 +77,8 @@ namespace ChiSquare
                         totalDocsInClass = ClassDocCount[classString];
                     else
                         totalDocsInClass = 0;
-                    expectedValue = (featureitem.Value * totalDocsInClass) / totalDoc;
+                    expectedValue1 = (featureitem.Value * totalDocsInClass) /(double) totalDoc;
+                    expectedValue2 = ((totalDoc - featureitem.Value) * totalDocsInClass) / ( double )totalDoc;
 
                     if (ClassWC.ContainsKey(classString) && (ClassWC[classString]).ContainsKey(featureitem.Key))
                         observedValue1 = (ClassWC[classString])[featureitem.Key];
@@ -85,10 +86,10 @@ namespace ChiSquare
                         observedValue1 = 0;
                     observedValue2 = totalDocsInClass - observedValue1;
 
-                    tempValue = System.Math.Pow((observedValue1 - expectedValue) ,2) ;
-                    score += (tempValue / expectedValue);
-                    tempValue = System.Math.Pow((observedValue1 - expectedValue), 2);
-                    score += (tempValue / expectedValue);
+                    tempValue = System.Math.Pow((observedValue1 - expectedValue1) ,2) ;
+                    score += (tempValue / expectedValue1);
+                    tempValue = System.Math.Pow((observedValue2 - expectedValue2), 2);
+                    score += (tempValue / expectedValue2);
                 }
                 FeatureScore.Add(featureitem.Key, score);
             }
@@ -98,10 +99,10 @@ namespace ChiSquare
             {
                 Console.WriteLine(item.Key+" "+item.Value+" " + Vocab[item.Key]);
                 count++;
-                if (count > 15)
-                    break;
+                //if (count > 15)
+                //    break;
             }
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }
